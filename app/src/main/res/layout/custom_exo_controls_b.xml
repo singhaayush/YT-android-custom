@@ -1,0 +1,117 @@
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="bottom"
+    android:background="@drawable/bidirectional_gradient"
+    android:paddingBottom="16dp"
+    tools:targetApi="28">
+
+    <ImageView
+        android:id="@+id/iv_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:padding="8dp"
+        app:layout_constraintBottom_toBottomOf="@id/tv_video_title"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tv_video_title"
+        app:srcCompat="@drawable/ic_back_long_white" />
+
+    <TextView
+        android:id="@+id/tv_video_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="52dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginRight="52dp"
+        android:ellipsize="middle"
+        android:gravity="center"
+        android:maxLines="2"
+        android:textColor="#dddddd"
+        android:textSize="18sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Tutorial 01: Integral Calculus. Managing the range integration operations" />
+
+    <ImageView
+        android:id="@+id/play_pause_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:background="@drawable/exo_icon_play"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/exo_rew"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_marginStart="84dp"
+        android:padding="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_rewind" />
+
+
+    <ImageView
+        android:id="@+id/exo_ffwd"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_marginEnd="84dp"
+        android:padding="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_fforward" />
+
+
+    <com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.views.YouTubePlayerSeekBar
+        android:id="@+id/youtube_player_seekbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        app:color="@color/white"
+        app:fontSize="12sp"
+        app:layout_constraintBottom_toTopOf="@id/ll_fullscreen"
+        app:layout_constraintTop_toTopOf="@id/ll_fullscreen"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/ll_fullscreen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="28dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/youtube_player_seekbar"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent">
+
+        <ImageView
+            android:id="@+id/enter_exit_fullscreen_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ic_baseline_fullscreen_48"
+            android:text="Enter/exit fullscreen"
+            app:tint="@android:color/darker_gray" />
+
+        <TextView
+            android:id="@+id/tv_fullscreen_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Fullscreen"
+            android:textColor="@color/white" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
