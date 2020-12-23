@@ -96,6 +96,12 @@ internal class CustomPlayerUiController(
         }
 
         panel?.setOnClickListener { fadeViewHelper.toggleVisibility() }
+
+        val backBtn = playerUi.findViewById<ImageView>(R.id.iv_back);
+        backBtn.setOnClickListener {
+            if (youTubePlayerView.isFullScreen()) youTubePlayerView.exitFullScreen()
+            else (context as VideoPlayActivity).onBackPressed()
+        }
     }
 
     override fun onReady(youTubePlayer: YouTubePlayer) {
