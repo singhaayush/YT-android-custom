@@ -17,19 +17,19 @@ class VideoPlayActivity : AppCompatActivity() {
 
         val youTubePlayerView =
             findViewById<YouTubePlayerView>(R.id.youtube_player_view)
-        val iFramePlayerOptions =
-            IFramePlayerOptions.Builder()
-                .controls(0)
-                .rel(1)
-                .ivLoadPolicy(3)
-                .ccLoadPolicy(1)
-                .build()
+//        val iFramePlayerOptions =
+//            IFramePlayerOptions.Builder()
+//                .controls(0)
+//                .rel(1)
+//                .ivLoadPolicy(3)
+//                .ccLoadPolicy(1)
+//                .build()
         lifecycle.addObserver(youTubePlayerView)
 
         val customPlayerUi =
             youTubePlayerView.inflateCustomPlayerUi(R.layout.custom_player_ui)
         youTubePlayerView.enableAutomaticInitialization = false
-        youTubePlayerView.initialize(object : AbstractYouTubePlayerListener() {
+        youTubePlayerView.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
             override fun onReady(youTubePlayer: YouTubePlayer) {
 
                 val customPlayerUiController = CustomPlayerUiController(
@@ -42,6 +42,6 @@ class VideoPlayActivity : AppCompatActivity() {
                 youTubePlayerView.addFullScreenListener(customPlayerUiController)
                 youTubePlayer.loadOrCueVideo(lifecycle, "V1Pl8CzNzCw", 0f)
             }
-        }, true, iFramePlayerOptions)
+        })
     }
 }

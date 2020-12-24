@@ -7,7 +7,9 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.example.ytcustom.R
@@ -20,6 +22,7 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTube
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.utils.FadeViewHelper
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.views.YouTubePlayerSeekBar
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.views.YouTubePlayerSeekBarListener
+import kotlinx.android.synthetic.main.activity_main.view.*
 
 
 internal class CustomPlayerUiController(
@@ -39,22 +42,29 @@ internal class CustomPlayerUiController(
     private var fullscreen = false
     private lateinit var fullScreenIcon: ImageView
     private lateinit var youTubePlayerSeekBar: YouTubePlayerSeekBar
+    private lateinit var fadeViewHelper: FadeViewHelper
+    private lateinit var fullScreenText: TextView
+    private lateinit var forwardButton: ImageView
+    private lateinit var backwardButton: ImageView
 
     private fun initViews(playerUi: View) {
         panel = playerUi.findViewById(R.id.panel)
-        val fadeViewHelper = FadeViewHelper(playerUi.findViewById(R.id.controls_container))
-        fadeViewHelper.animationDuration = FadeViewHelper.DEFAULT_ANIMATION_DURATION
-        fadeViewHelper.fadeOutDelay = FadeViewHelper.DEFAULT_FADE_OUT_DELAY
+        fadeViewHelper = FadeViewHelper(playerUi.findViewById(R.id.controls_container))
         fullScreenIcon = playerUi.findViewById(R.id.enter_exit_fullscreen_button)
         youTubePlayer.addListener(fadeViewHelper)
         youTubePlayerSeekBar =
             playerUi.findViewById<YouTubePlayerSeekBar>(R.id.youtube_player_seekbar)
-        youTubePlayer.addListener(youTubePlayerSeekBar)
-        youTubePlayerSeekBar.youtubePlayerSeekBarListener = object : YouTubePlayerSeekBarListener {
-            override fun seekTo(time: Float) {
-                youTubePlayer.seekTo(time)
-            }
-        }
+        fullScreenText = playerUi.findViewById(R.id.tv_fullscreen_state)
+        forwardButton = playerUi.findViewById<ImageView>(R.id.exo_ffwd)
+        backwardButton = playerUi.findViewById<ImageView>(R.id.exo_rew);
+
+        attachListeners()
+
+    }
+
+    private fun attachListeners() {
+        fadeViewHelper.animationDuration = FadeViewHelper.DEFAULT_ANIMATION_DURATION
+        fadeViewHelper.fadeOutDelay = FadeViewHelper.DEFAULT_FADE_OUT_DELAY
 
         playPauseButton =
             playerUi.findViewById<ImageView>(R.id.play_pause_button)
@@ -80,28 +90,41 @@ internal class CustomPlayerUiController(
             if (fullscreen) youTubePlayerView.exitFullScreen() else youTubePlayerView.enterFullScreen()
             fullscreen = !fullscreen
         }
-
-        val forwardButton = playerUi.findViewById<ImageView>(R.id.exo_ffwd)
+        fullScreenText.setOnClickListener {
+            if (fullscreen) youTubePlayerView.exitFullScreen() else youTubePlayerView.enterFullScreen()
+            fullscreen = !fullscreen
+        }
         forwardButton.setOnClickListener {
             if (playerTracker.state == PlayerState.PLAYING) {
                 youTubePlayer.seekTo(playerTracker.currentSecond + 10f)
             }
         }
 
-        val backwardButton = playerUi.findViewById<ImageView>(R.id.exo_rew);
         backwardButton.setOnClickListener {
             if (playerTracker.state == PlayerState.PLAYING) {
                 youTubePlayer.seekTo(playerTracker.currentSecond - 10f)
             }
         }
 
-        panel?.setOnClickListener { fadeViewHelper.toggleVisibility() }
+        panel?.setOnClickListener {
+            if (playerTracker.state != PlayerState.PAUSED)
+                fadeViewHelper.toggleVisibility()
+        }
 
         val backBtn = playerUi.findViewById<ImageView>(R.id.iv_back);
         backBtn.setOnClickListener {
             if (youTubePlayerView.isFullScreen()) youTubePlayerView.exitFullScreen()
             else (context as VideoPlayActivity).onBackPressed()
         }
+
+        youTubePlayer.addListener(youTubePlayerSeekBar)
+        youTubePlayerSeekBar.youtubePlayerSeekBarListener = object : YouTubePlayerSeekBarListener {
+            override fun seekTo(time: Float) {
+                youTubePlayer.seekTo(time)
+            }
+        }
+
+
     }
 
     override fun onReady(youTubePlayer: YouTubePlayer) {
@@ -113,10 +136,12 @@ internal class CustomPlayerUiController(
         youTubePlayer: YouTubePlayer,
         state: PlayerState
     ) {
-        Log.d("TAG21", "onStateChange: $state")
-        if (state == PlayerState.PLAYING || state == PlayerState.PAUSED || state == PlayerState.VIDEO_CUED) panel!!.setBackgroundColor(
-            ContextCompat.getColor(context, android.R.color.transparent)
-        ) else if (state == PlayerState.BUFFERING) panel!!.setBackgroundColor(
+        if (state == PlayerState.PLAYING || state == PlayerState.VIDEO_CUED) {
+            panel!!.setBackgroundColor(
+                ContextCompat.getColor(context, android.R.color.transparent)
+            )
+            showBufferingUI(false)
+        } else if (state == PlayerState.BUFFERING) panel!!.setBackgroundColor(
             ContextCompat.getColor(
                 context,
                 android.R.color.transparent
@@ -127,10 +152,34 @@ internal class CustomPlayerUiController(
                 context,
                 R.drawable.exo_icon_pause
             )
-            PlayerState.PAUSED -> playPauseButton.background = ContextCompat.getDrawable(
-                context,
-                R.drawable.exo_icon_play
-            )
+            PlayerState.PAUSED -> {
+                playPauseButton.background = ContextCompat.getDrawable(
+                    context,
+                    R.drawable.exo_icon_play
+                )
+                panel!!.setBackgroundColor(
+                    ContextCompat.getColor(context, android.R.color.black)
+                )
+                panel!!.requestFocus()
+            }
+            PlayerState.BUFFERING -> showBufferingUI(true)
+        }
+
+    }
+
+    private fun showBufferingUI(isBuffering: Boolean) {
+        if (isBuffering) {
+            val bufferingProgressBar = playerUi.findViewById<ProgressBar>(R.id.pb_buffer)
+            bufferingProgressBar.visibility = View.VISIBLE
+            forwardButton.visibility = View.INVISIBLE
+            backwardButton.visibility = View.INVISIBLE
+            playPauseButton.visibility = View.INVISIBLE
+        } else {
+            val bufferingProgressBar = playerUi.findViewById<ProgressBar>(R.id.pb_buffer)
+            bufferingProgressBar.visibility = View.INVISIBLE
+            forwardButton.visibility = View.VISIBLE
+            backwardButton.visibility = View.VISIBLE
+            playPauseButton.visibility = View.VISIBLE
         }
 
 
@@ -142,7 +191,10 @@ internal class CustomPlayerUiController(
         second: Float
     ) {
         if (playerTracker.videoDuration - second <= 1f) {
-            (context as VideoPlayActivity).onBackPressed()
+            panel!!.setBackgroundColor(
+                ContextCompat.getColor(context, android.R.color.black)
+            )
+            panel!!.requestFocus()
         }
     }
 
@@ -197,4 +249,5 @@ internal class CustomPlayerUiController(
         youTubePlayer.addListener(playerTracker)
         initViews(playerUi)
     }
+
 }
