@@ -3,11 +3,12 @@ package com.example.ytcustom.ui
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.ActivityInfo
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -22,7 +23,6 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTube
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.utils.FadeViewHelper
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.views.YouTubePlayerSeekBar
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.views.YouTubePlayerSeekBarListener
-import kotlinx.android.synthetic.main.activity_main.view.*
 
 
 internal class CustomPlayerUiController(
@@ -109,6 +109,7 @@ internal class CustomPlayerUiController(
         panel?.setOnClickListener {
             if (playerTracker.state != PlayerState.PAUSED)
                 fadeViewHelper.toggleVisibility()
+
         }
 
         val backBtn = playerUi.findViewById<ImageView>(R.id.iv_back);
@@ -123,30 +124,25 @@ internal class CustomPlayerUiController(
                 youTubePlayer.seekTo(time)
             }
         }
-
-
     }
 
     override fun onReady(youTubePlayer: YouTubePlayer) {
-        // progressbar!!.visibility = View.GONE
-
+        if (playerTracker.state == PlayerState.PAUSED) {
+            youTubePlayer.play()
+        }
     }
 
     override fun onStateChange(
         youTubePlayer: YouTubePlayer,
         state: PlayerState
     ) {
-        if (state == PlayerState.PLAYING || state == PlayerState.VIDEO_CUED) {
+        if (state == PlayerState.PLAYING || state == PlayerState.VIDEO_CUED || state == PlayerState.PAUSED) {
             panel!!.setBackgroundColor(
                 ContextCompat.getColor(context, android.R.color.transparent)
             )
             showBufferingUI(false)
-        } else if (state == PlayerState.BUFFERING) panel!!.setBackgroundColor(
-            ContextCompat.getColor(
-                context,
-                android.R.color.transparent
-            )
-        )
+        }
+
         when (state) {
             PlayerState.PLAYING -> playPauseButton.background = ContextCompat.getDrawable(
                 context,
@@ -157,9 +153,7 @@ internal class CustomPlayerUiController(
                     context,
                     R.drawable.exo_icon_play
                 )
-                panel!!.setBackgroundColor(
-                    ContextCompat.getColor(context, android.R.color.black)
-                )
+                panel!!.background = ContextCompat.getDrawable(context, R.drawable.pause_gradient)
                 panel!!.requestFocus()
             }
             PlayerState.BUFFERING -> showBufferingUI(true)
@@ -249,5 +243,6 @@ internal class CustomPlayerUiController(
         youTubePlayer.addListener(playerTracker)
         initViews(playerUi)
     }
+
 
 }
